@@ -31,6 +31,7 @@ Usage: ${0##*/} -d -f FILE [-h] [-t TABLE] -o OUTFILE
 EOF
 }
 
+
 function get_args(){
     while getopts "hd:f:t:o:" opt; do
         case "$opt" in
@@ -48,10 +49,21 @@ function get_args(){
               ;;
             h|*)
               usage
+              exit
               ;;
         esac
     done
 }
 
-get_args "$@"
 
+function check_args(){
+    if [[ -z "$DATABASE" ]] || [[ -z "$INPUTFILE" ]] || [[ -z "$OUTFILE" ]]
+    then
+        echo -e "\nError: Database, input file or output file not set.\n"
+        usage
+        exit 
+    fi
+}
+
+get_args "$@"
+check_args
