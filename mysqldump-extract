@@ -65,5 +65,34 @@ function check_args(){
     fi
 }
 
+
+function extract_database(){
+    FIND=0
+    PRINT=0
+    while read line
+    do
+       if [[ $FIND -eq 1 ]] && [[ $line =~ ^CREATE\ DATABASE.* ]]
+       then
+           break
+       fi
+    
+       if [[ $line =~ ^CREATE\ DATABASE.*\`$DATABASE\`.*\;  ]]
+        then
+            PRINT=1
+            FIND=1
+            echo "$line"
+            continue
+        fi
+    
+        if [[ $FIND -eq 1 ]] && [[ $PRINT = 1 ]]
+        then
+            echo "$line"
+        fi
+    
+    done < $INPUTFILE > $OUTFILE
+}
+
 get_args "$@"
 check_args
+extract_database
+
