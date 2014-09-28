@@ -57,12 +57,27 @@ function get_args(){
 
 
 function check_args(){
-    if [[ -z "$DATABASE" ]] || [[ -z "$INPUTFILE" ]] || [[ -z "$OUTFILE" ]]
+    if [[ -z "$INPUTFILE" ]] || [[ -z "$OUTFILE" ]]
     then
-        echo -e "\nError: Database, input file or output file not set.\n"
+        echo -e "\nError: Input file or output file not set.\n"
         usage
         exit 
     fi
+    
+    if [[ -z "$DATABASE" ]] && [[ -z "$TABLE" ]]
+    then
+        echo -e "\nError: No database and no table specified.\n"
+        usage
+        exit
+    fi
+ 
+    if [[ -z "$DATABASE" ]] && [[ -n "$TABLE" ]]
+    then
+        FIND=1
+    else
+        FIND=0
+    fi
+
 }
 
 
@@ -73,7 +88,8 @@ function extract_database(){
     do
         if [[ $FIND -eq 1 ]] && [[ $line =~ ^CREATE\ DATABASE.* ]]
         then
-            PRINT=2      
+            PRINT=2
+            mv .${OUTFILE}.tmp ${OUTFILE}
             break
         fi
     
@@ -90,12 +106,11 @@ function extract_database(){
             echo "$line"
         fi
     
-    done < $INPUTFILE > $OUTFILE
+    done < $INPUTFILE > .${OUTFILE}.tmp
 }
 
 
 function extract_table(){
-    local FIND=0
     PRINT=0
     while read line
     do
@@ -104,6 +119,7 @@ function extract_table(){
             if [[ $line =~ ^CREATE\ DATABASE.* ]] || [[ $line =~ ^CREATE\ TABLE ]] || [[ $line =~ ^DROP\ TABLE ]]
             then
                 PRINT=2
+                mv .${OUTFILE}.tmp ${OUTFILE}
                 break
             fi
         fi
@@ -124,7 +140,7 @@ function extract_table(){
             echo "$line"
         fi
     
-    done < $INPUTFILE > $OUTFILE
+    done < $INPUTFILE > .${OUTFILE}.tmp
 }
 
 
@@ -137,6 +153,7 @@ function main(){
         if [ $PRINT -ne 2 ]
         then
             echo -e "Database or table not found in $INPUTFILE."
+            rm -rf .${OUTFILE}.tmp
             exit
         fi
     else
@@ -144,6 +161,7 @@ function main(){
         if [ $PRINT -ne 2 ]
         then
             echo -e "Database not found in $INPUTFILE."
+            rm -rf .${OUTFILE}.tmp
             exit
         fi
     fi
