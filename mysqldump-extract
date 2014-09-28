@@ -68,15 +68,16 @@ function check_args(){
 
 function extract_database(){
     local FIND=0
-    local PRINT=0
+    PRINT=0
     while read line
     do
-       if [[ $FIND -eq 1 ]] && [[ $line =~ ^CREATE\ DATABASE.* ]]
-       then
-           break
-       fi
+        if [[ $FIND -eq 1 ]] && [[ $line =~ ^CREATE\ DATABASE.* ]]
+        then
+            PRINT=2      
+            break
+        fi
     
-       if [[ $line =~ ^CREATE\ DATABASE.*\`$DATABASE\`.*\;  ]]
+        if [[ $line =~ ^CREATE\ DATABASE.*\`$DATABASE\`.*\;  ]]
         then
             PRINT=1
             FIND=1
@@ -95,13 +96,14 @@ function extract_database(){
 
 function extract_table(){
     local FIND=0
-    local PRINT=0
+    PRINT=0
     while read line
     do
         if [[ $PRINT -eq 1 ]] 
         then
             if [[ $line =~ ^CREATE\ DATABASE.* ]] || [[ $line =~ ^CREATE\ TABLE ]] || [[ $line =~ ^DROP\ TABLE ]]
             then
+                PRINT=2
                 break
             fi
         fi
@@ -126,6 +128,26 @@ function extract_table(){
 }
 
 
-get_args "$@"
-check_args
+function main(){
+    get_args "$@"
+    check_args
+    if [ -n "$TABLE" ]
+    then
+        extract_table
+        if [ $PRINT -ne 2 ]
+        then
+            echo -e "Database or table not found in $INPUTFILE."
+            exit
+        fi
+    else
+        extract_database
+        if [ $PRINT -ne 2 ]
+        then
+            echo -e "Database not found in $INPUTFILE."
+            exit
+        fi
+    fi
 
+}
+
+main "$@"
