@@ -12,7 +12,7 @@ Installation
 Checkout the script:
 
 ```bash
-$ wget https://raw.githubusercontent.com/cperezcerrato/mysqldump-extract/master/mysqldump-extract /usr/local/bin/
+$ wget --no-check-certificate -O /usr/local/bin/mysqldump-extract https://raw.githubusercontent.com/cperezcerrato/mysqldump-extract/master/mysqldump-extract 
 ```
 
 Set permissions:
