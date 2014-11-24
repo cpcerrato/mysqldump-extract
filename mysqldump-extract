@@ -89,8 +89,6 @@ function extract_database(){
     do
         if [[ $FIND -eq 1 ]] && [[ $line =~ ^CREATE\ DATABASE.* ]]
         then
-            PRINT=2
-            mv .${OUTFILE}.tmp ${OUTFILE}
             break
         fi
     
@@ -119,8 +117,6 @@ function extract_table(){
         then
             if [[ $line =~ ^CREATE\ DATABASE.* ]] || [[ $line =~ ^CREATE\ TABLE ]] || [[ $line =~ ^DROP\ TABLE ]]
             then
-                PRINT=2
-                mv .${OUTFILE}.tmp ${OUTFILE}
                 break
             fi
         fi
@@ -151,20 +147,16 @@ function main(){
     if [ -n "$TABLE" ]
     then
         extract_table
-        if [ $PRINT -ne 2 ]
-        then
-            echo -e "Database or table not found in $INPUTFILE."
-            rm -rf .${OUTFILE}.tmp
-            exit
-        fi
     else
         extract_database
-        if [ $PRINT -ne 2 ]
-        then
-            echo -e "Database not found in $INPUTFILE."
-            rm -rf .${OUTFILE}.tmp
-            exit
-        fi
+    fi
+
+    if [ -s .${OUTFILE}.tmp ]
+    then
+        mv .${OUTFILE}.tmp ${OUTFILE}
+    else
+        rm .${OUTFILE}.tmp
+        echo -e "Database or table not found in $INPUTFILE."
     fi
 
 }
