@@ -105,7 +105,7 @@ function extract_database(){
             echo "$line"
         fi
     
-    done < $INPUTFILE > .${OUTFILE}.tmp
+    done < $INPUTFILE > ${OUTFILE}.tmp
 }
 
 
@@ -137,7 +137,7 @@ function extract_table(){
             echo "$line"
         fi
     
-    done < $INPUTFILE > .${OUTFILE}.tmp
+    done < $INPUTFILE > ${OUTFILE}.tmp
 }
 
 
@@ -151,11 +151,11 @@ function main(){
         extract_database
     fi
 
-    if [ -s .${OUTFILE}.tmp ]
+    if [ -s ${OUTFILE}.tmp ]
     then
-        mv .${OUTFILE}.tmp ${OUTFILE}
+        mv ${OUTFILE}.tmp ${OUTFILE}
     else
-        rm .${OUTFILE}.tmp
+        rm ${OUTFILE}.tmp
         echo -e "Database or table not found in $INPUTFILE."
     fi
 
